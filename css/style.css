@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap');
+
+:root {
+    --primary-color: #FF7B31; 
+    --bg-light: #FFFFFF;      
+    --text-dark: #1E1E1E;      
+    --color-yellow: #FAE49B; 
+    --color-purple: #D1B7FD; 
+    /* Typography */
+    --font-main: 'DM Sans', sans-serif;
+    --font-heading: 'Sora', sans-serif;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-main);
+    color: var(--text-dark);
+    background-color: var(--bg-light);
+}
+
+h1, h2, h3, h4,
+.heading-font {
+  font-family: var(--font-heading);
+}
