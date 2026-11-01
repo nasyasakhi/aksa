@@ -112,3 +112,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:line
 #agTable{--bs-table-bg:transparent}
 [data-bs-theme=dark] .diff{border-color:#2e2a45}
 [data-bs-theme=dark] .diff p{color:#b9b0c7}
+
+/* ===== v4 ===== */
+.tool-sel{width:auto;max-width:150px;border-radius:12px;font-size:.9rem;font-weight:600}
+.ofc-box{border:2px dashed var(--purple);border-radius:12px;padding:.7rem;margin-bottom:.75rem}
+#ofcBtn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.stars button{background:none;border:0;font-size:1.6rem;color:#f2b01e;cursor:pointer;padding:0 .1rem}
+.stars button:hover{transform:scale(1.2)}
+.pc-ok{color:#1c6b3d}.pc-warn{color:#b87400}
+[data-bs-theme=dark] .accordion-item{background:#1e1b2e;border-color:#2e2a45}
+[data-bs-theme=dark] .accordion-button{background:#1e1b2e;color:var(--ink)}

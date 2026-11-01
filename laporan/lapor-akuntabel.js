@@ -4,7 +4,7 @@ const AGENCY = { jalan: 'Dinas Bina Marga', lampu: 'Dinas Bina Marga', jembatan:
 const SLA_D = { 1: 14, 2: 7, 3: 3 };
 const slaDays = r => r.cat === 'proyek' ? 14 : SLA_D[r.sev];
 const deadline = r => r.created + slaDays(r) * 864e5;
-const resolvedAt = r => stageOf(r) < 3 ? null : (r.seed ? r.created + 12 * 864e5 : r.created + 9e4);
+const resolvedAt = r => stageOf(r) < 3 ? null : (r.doneAt || r.seed ? r.created + 12 * 864e5 : r.created + 9e4);
 function slaState(r) {
   const d = resolvedAt(r);
   if (d) return { done: true, late: d > deadline(r) };
@@ -15,7 +15,7 @@ const fmtDur = ms => { ms = Math.abs(ms); const d = Math.floor(ms / 864e5), h = 
   return d ? `${d} hr ${h} jam` : h ? `${h} jam` : `${Math.max(1, Math.floor(ms / 6e4))} mnt`; };
 const overdueDays = r => { const s = slaState(r); return !s.done && s.late ? -s.left / 864e5 : 0; };
 const escalated = r => overdueDays(r) >= 2;
-reports.forEach(r => { if (r.id === 'AKSA-1005' && r.yes === undefined) r.yes = 3; });
+reports.forEach(r => { if (r.id === 'AKSA-1005' && r.yes === undefined) { r.yes = 3; r.ratings = [5, 4, 4]; } });
 
 /* ---------- Verifikasi warga ---------- */
 function verifState(r) {
@@ -94,16 +94,25 @@ upvote = function (id) { const r = reports.find(x => x.id === id), b = r ? r.vot
 window.upvote = upvote;
 
 /* ---------- Pratinjau rute instansi di form ---------- */
+const RISK_KW = ['anak', 'sekolah', 'malam', 'gelap', 'korban', 'kecelakaan', 'jatuh', 'banjir', 'arus', 'listrik', 'longsor', 'bayi', 'lansia', 'rumah sakit'];
+function riskInfo(desc, sev, cat) {
+  const t = (desc || '').toLowerCase(), hits = RISK_KW.filter(k => t.includes(k));
+  const sc = sev * 2 + hits.length * 1.5 + (cat === 'jembatan' || cat === 'drainase' ? 1 : 0);
+  return { level: sc >= 8 ? 'Tinggi' : sc >= 5 ? 'Sedang' : 'Rendah', hits };
+}
+const EST = { jalan: 5, lampu: 4, drainase: 6, sampah: 3, jembatan: 9, fasum: 7, proyek: 14 };
+const estDays = r => Math.max(1, Math.round(EST[r.cat] * (r.sev === 3 ? .6 : r.sev === 1 ? 1.4 : 1)));
 function showRoute() {
   const b = $('#routeBox'); if (!selCat) return b.classList.add('d-none');
-  const sev = +document.querySelector('[name=sev]:checked').value, d = selCat === 'proyek' ? 14 : SLA_D[sev];
+  const sev = +document.querySelector('[name=sev]:checked').value, d = selCat === 'proyek' ? 14 : SLA_D[sev], rk = riskInfo($('#desc').value, sev, selCat);
   b.classList.remove('d-none');
-  b.innerHTML = `<b>Diteruskan ke ${AGENCY[selCat]}</b><br>Target selesai ${d} hari. Lewat tenggat, laporan otomatis dieskalasi.` +
+  b.innerHTML = `<b>Diteruskan ke ${AGENCY[selCat]}</b><br>Respons pertama petugas maks. 6 jam, target selesai ${d} hari (estimasi perbaikan ±${estDays({ cat: selCat, sev })} hari).<br>Prediksi risiko: <b>${rk.level}</b>${rk.hits.length ? ` (terdeteksi: ${rk.hits.slice(0, 3).join(', ')})` : ''}. Lewat tenggat, laporan otomatis dieskalasi.` +
     (selCat === 'proyek' ? '<br>Tulis fakta yang kamu lihat, bukan tuduhan. Mengirim sebagai anonim disarankan.' : '');
 }
+$('#desc').addEventListener('input', () => showRoute());
 const _pickCat = pickCat;
 pickCat = function (k) { _pickCat(k); showRoute(); };
-$('#sevGroup').addEventListener('change', showRoute);
+$('#sevGroup').addEventListener('change', () => showRoute());
 
 /* ---------- Pin merah untuk yang terlambat ---------- */
 function recolor() {
@@ -117,16 +126,16 @@ drawMarkers = function () { _dm2(); recolor(); renderAccount(); renderChart(); }
 function renderAccount() {
   const ag = {};
   reports.forEach(r => {
-    const o = ag[AGENCY[r.cat]] || (ag[AGENCY[r.cat]] = { n: 0, done: 0, good: 0, bad: 0, late: 0 }), s = slaState(r);
-    o.n++;
+    const o = ag[AGENCY[r.cat]] || (ag[AGENCY[r.cat]] = { n: 0, done: 0, good: 0, bad: 0, late: 0, rs: [] }), s = slaState(r);
+    o.n++; o.rs.push(...(r.ratings || []));
     if (s.done) { o.done++; (!s.late && verifState(r) !== 'disputed') ? o.good++ : o.bad++; }
     else if (s.late) { o.bad++; o.late++; }
   });
   const rows = Object.entries(ag).map(([a, o]) => ({ a, ...o, score: o.good + o.bad ? Math.round(o.good / (o.good + o.bad) * 100) : null }))
     .sort((x, y) => (y.score ?? -1) - (x.score ?? -1));
-  $('#agTable').innerHTML = `<thead><tr><th>Instansi</th><th class="text-center">Laporan</th><th class="text-center">Selesai</th><th class="text-center">Terlambat</th><th style="min-width:150px">Skor akuntabilitas</th></tr></thead><tbody>` +
+  $('#agTable').innerHTML = `<thead><tr><th>Instansi</th><th class="text-center">Laporan</th><th class="text-center">Selesai</th><th class="text-center">Terlambat</th><th class="text-center">Kepuasan</th><th style="min-width:150px">Skor akuntabilitas</th></tr></thead><tbody>` +
     rows.map(o => { const col = o.score >= 70 ? '#2e9e5b' : o.score >= 40 ? '#f2b01e' : '#e53935';
-      return `<tr><td class="fw-semibold">${o.a}</td><td class="text-center">${o.n}</td><td class="text-center">${o.done}</td><td class="text-center">${o.late}</td><td>` +
+      return `<tr><td class="fw-semibold">${o.a}</td><td class="text-center">${o.n}</td><td class="text-center">${o.done}</td><td class="text-center">${o.late}</td><td class="text-center">${o.rs.length ? (o.rs.reduce((a, b) => a + b, 0) / o.rs.length).toFixed(1) + '★' : '–'}</td><td>` +
         (o.score == null ? '<span class="text-muted small">Belum ada data</span>'
           : `<div class="d-flex align-items-center gap-2"><div class="progress flex-fill" style="height:8px"><div class="progress-bar" style="width:${o.score}%;background:${col}"></div></div><b>${o.score}</b></div>`) + '</td></tr>'; }).join('') + '</tbody>';
   const late = reports.filter(r => overdueDays(r) > 0).sort((a, b) => overdueDays(b) - overdueDays(a)).slice(0, 4);
@@ -154,32 +163,6 @@ function renderChart() {
 const _at = applyTheme;
 applyTheme = function (t) { _at(t); setTimeout(renderChart, 0); };
 
-/* ---------- Detail laporan (akuntabilitas lengkap) ---------- */
-function renderDetail(id) {
-  const r = reports.find(x => x.id === id); if (!r) return;
-  const st = stageOf(r), p = prio(r), [pl, pc] = prioLevel(p), c = CATS[r.cat], v = verifState(r);
-  $('#detailBody').dataset.id = id;
-  $('#detailBody').innerHTML = `
-    <div class="d-flex justify-content-between align-items-start mb-2"><div><div class="h5 fw-bold mb-0">${c.icon} ${c.label}</div>
-      <small class="text-muted">${r.id} · ${ago(r.created)} · oleh ${r.anon ? 'Anonim' : esc(r.name || 'Warga')}</small></div>
-      <button class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>
-    ${r.after ? `<div class="ba"><figure><img src="${r.photo}" alt="Sebelum"><figcaption>Sebelum</figcaption></figure><figure><img src="${r.after}" alt="Sesudah"><figcaption>Sesudah</figcaption></figure></div>`
-      : r.photo ? `<img class="detail-img" src="${r.photo}" alt="Foto kerusakan">` : ''}
-    <div class="d-flex flex-wrap gap-2 my-2"><span class="badge-st st-${st}">${STAGES[st]}</span><span class="badge-st sev-${r.sev}">${SEVL[r.sev]}</span>
-      ${st < 3 ? `<span class="badge-st pr-${pc}">Prioritas ${pl} (${p})</span>` : ''}${slaBadge(r)}</div>
-    <div class="small mb-2"><b>Instansi:</b> ${AGENCY[r.cat]} · <b>Tenggat:</b> ${new Date(deadline(r)).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} (${slaDays(r)} hari)</div>
-    ${escalated(r) ? '<div class="alert alert-danger small py-2">Lewat tenggat lebih dari 2 hari. Laporan ini dieskalasi ke Inspektorat dan Ombudsman.</div>' : ''}
-    <p class="mb-1">${esc(r.desc)}</p>
-    <p class="small text-muted"><i class="bi bi-geo-alt"></i> ${esc(r.addr || r.lat.toFixed(5) + ', ' + r.lng.toFixed(5))}</p>
-    ${st === 3 ? `<div class="route-box"><b>Instansi menandai ini selesai. Benarkah?</b><br>${r.yes || 0} suara setuju, ${r.no || 0} menolak. Perlu 2 suara agar sah.
-      <div class="d-flex gap-2 mt-2 flex-wrap">${confDone(id) ? '<span class="small text-muted">Kamu sudah memberi konfirmasi.</span>'
-        : '<button class="btn btn-sm btn-aksa" data-act="yes">✅ Sudah diperbaiki</button><button class="btn btn-sm btn-outline-aksa" data-act="after">📷 Foto sesudah</button><button class="btn btn-sm btn-outline-aksa" data-act="no">❌ Belum</button>'}</div></div>` : ''}
-    <ul class="timeline">${STAGES.map((s, i) => `<li class="${i <= st ? 'on' : ''}">${s}</li>`).join('')}</ul>
-    <div class="seal mb-3">🔐 Segel SHA-256: ${r.hash ? r.hash.slice(0, 16) + '…' : 'menyegel…'} <button class="btn btn-sm btn-link p-0 ms-1" data-act="seal">Verifikasi</button></div>
-    <div class="d-flex gap-2"><button class="btn btn-aksa flex-fill" data-act="vote">👍 Dukung (${r.votes})</button>
-      <button class="btn btn-outline-aksa" data-act="share" aria-label="Bagikan"><i class="bi bi-share-fill"></i></button>
-      <button class="btn btn-outline-aksa" data-act="focus" aria-label="Lihat di peta"><i class="bi bi-map-fill"></i></button></div>`;
-}
 $('#detailBody').addEventListener('click', async e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const id = $('#detailBody').dataset.id, a = b.dataset.act;

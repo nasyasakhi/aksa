@@ -10,7 +10,7 @@
 <link href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" rel="stylesheet">
 <link href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="style.css" rel="stylesheet">
+<link href="lapor.css" rel="stylesheet">
 </head>
 <body>
 <nav class="navbar navbar-expand-lg aksa-nav">
@@ -22,6 +22,8 @@
         <li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li>
         <li class="nav-item"><a class="nav-link active" href="lapor.html">Lapor Kerusakan</a></li>
         <li class="nav-item"><a class="nav-link" href="#lacak">Lacak Laporan</a></li>
+        <li class="nav-item"><a class="nav-link" href="dasbor.html">Dasbor Instansi</a></li>
+        <li class="nav-item d-flex align-items-center gap-1"><button id="bellBtn" class="btn btn-sm btn-outline-aksa" aria-label="Aktifkan notifikasi"><i class="bi bi-bell"></i></button><button id="a11yBtn" class="btn btn-sm btn-outline-aksa" aria-label="Ubah ukuran teks">Aa</button><button id="ofcBtn" class="btn btn-sm btn-outline-aksa"><i class="bi bi-person-badge"></i> Petugas</button></li>
         <li class="nav-item d-flex align-items-center"><span id="pointsChip" class="points-chip"></span></li>
         <li class="nav-item"><button id="themeBtn" class="btn btn-sm btn-outline-aksa" aria-label="Ganti tema"><i class="bi bi-moon-stars-fill"></i></button></li>
       </ul>
@@ -57,6 +59,7 @@
           <div id="dropEmpty"><i class="bi bi-camera-fill fs-2"></i><div class="fw-semibold">Ambil atau pilih foto</div><small class="text-muted">Maks. 5 MB, otomatis dikompres</small></div>
           <img id="preview" class="d-none" alt="Pratinjau foto">
         </label>
+        <div id="photoCheck" class="small mt-2" aria-live="polite"></div>
 
         <h2 class="step-title mt-4"><span>2</span> Lokasi</h2>
         <div class="d-flex gap-2 mb-2">
@@ -101,6 +104,8 @@
         </div>
         <button id="heatBtn" class="btn tool" type="button"><i class="bi bi-fire"></i> Heatmap</button>
         <button id="satBtn" class="btn tool" type="button"><i class="bi bi-globe-asia-australia"></i> Satelit</button>
+        <select id="statusSel" class="form-select tool-sel" aria-label="Filter status"><option value="all">Semua status</option><option value="aktif">Sedang diproses</option><option value="late">Lewat tenggat</option><option value="done">Selesai</option></select>
+        <select id="timeSel" class="form-select tool-sel" aria-label="Filter waktu"><option value="all">Semua waktu</option><option value="7">7 hari</option><option value="30">30 hari</option></select>
       </div>
       <div class="d-flex flex-wrap gap-3 small text-muted mt-2">
         <span><span class="dot" style="background:#ff7a2f"></span> Pin laporanmu</span>
@@ -160,6 +165,24 @@
   </div></div>
 </div>
 
+<section class="container pb-5" id="faq">
+  <div class="row g-4">
+    <div class="col-lg-7"><h2 class="h4 fw-bold mb-3">Pertanyaan umum</h2>
+      <div class="accordion" id="faqAcc">
+        <div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#f1">Berapa lama laporan ditangani?</button></h3><div id="f1" class="accordion-collapse collapse" data-bs-parent="#faqAcc"><div class="accordion-body">Petugas harus merespons maksimal 6 jam. Tenggat penyelesaian 3, 7, atau 14 hari sesuai tingkat keparahan. Lewat tenggat, laporan dieskalasi.</div></div></div>
+        <div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#f2">Siapa yang menentukan laporan benar-benar selesai?</button></h3><div id="f2" class="accordion-collapse collapse" data-bs-parent="#faqAcc"><div class="accordion-body">Petugas wajib mengunggah foto tindak lanjut, lalu warga mengonfirmasi. Foto dicek kemiripannya dan di-hash agar tidak bisa diganti diam-diam.</div></div></div>
+        <div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#f3">Apakah identitasku aman?</button></h3><div id="f3" class="accordion-collapse collapse" data-bs-parent="#faqAcc"><div class="accordion-body">Kamu bisa mengirim sebagai anonim. Nama hanya tampil jika kamu mengisinya.</div></div></div>
+        <div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#f4">Bagaimana foto diperiksa?</button></h3><div id="f4" class="accordion-collapse collapse" data-bs-parent="#faqAcc"><div class="accordion-body">Sistem memeriksa umur file dan kemiripan dengan foto laporan lain. Ini pemeriksaan sederhana, bukan pendeteksi AI.</div></div></div>
+      </div></div>
+    <div class="col-lg-5"><h2 class="h4 fw-bold mb-3">Nomor darurat</h2>
+      <div class="card-aksa p-3"><div class="row g-2 text-center">
+        <div class="col-4"><div class="stat"><b>112</b>Darurat</div></div><div class="col-4"><div class="stat"><b>113</b>Damkar</div></div><div class="col-4"><div class="stat"><b>119</b>Ambulans</div></div>
+        <div class="col-6"><div class="stat"><b>123</b>PLN</div></div><div class="col-6"><div class="stat"><b>1500</b>PDAM</div></div></div>
+        <p class="small text-muted mt-3 mb-0">Aksa untuk masalah non-darurat. Untuk bahaya langsung, hubungi nomor di atas.</p></div></div>
+  </div>
+</section>
+
+<input type="file" id="fuInput" accept="image/*" hidden>
 <input type="file" id="afterInput" accept="image/*" hidden>
 <div class="modal fade" id="detailModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"><div class="modal-content card-aksa p-3" id="detailBody"></div></div></div>
 
@@ -170,8 +193,9 @@
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="script.js"></script>
-<script src="script-plus.js"></script>
-<script src="lapor-akuntble.js"></script>
+<script src="lapor.js"></script>
+<script src="lapor-plus.js"></script>
+<script src="lapor-akuntabel.js"></script>
+<script src="lapor-gabungan.js"></script>
 </body>
 </html>

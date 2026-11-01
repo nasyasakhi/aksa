@@ -22,7 +22,7 @@ $('#themeBtn').onclick = () => applyTheme(document.documentElement.getAttribute(
 /* ---------- Heatmap titik rawan ---------- */
 const heat = L.heatLayer([], { radius: 32, blur: 24, maxZoom: 15, gradient: { .3: '#cdb8fb', .6: '#ff7a2f', 1: '#e53935' } });
 function refreshHeat() {
-  heat._latlngs = reports.filter(r => activeFilter === 'all' || r.cat === activeFilter)
+  heat._latlngs = reports.filter(r => typeof passFilter === 'function' ? passFilter(r) : (activeFilter === 'all' || r.cat === activeFilter))
     .map(r => [r.lat, r.lng, Math.min(1, r.sev / 3 * .6 + r.votes * .06)]);
   if (heatOn) {
     if (map.hasLayer(cluster)) map.removeLayer(cluster);
@@ -178,7 +178,7 @@ setInterval(() => {
   getMine().forEach(id => {
     const r = reports.find(x => x.id === id); if (!r) return;
     const st = stageOf(r);
-    if (lastStage[id] !== undefined && st > lastStage[id]) { toast(`Laporan ${id} kini: ${STAGES[st]}`); changed = true; }
+    if (lastStage[id] !== undefined && st > lastStage[id]) { notify(`Laporan ${id} kini: ${STAGES[st]}`); changed = true; }
     lastStage[id] = st;
   });
   if (changed) drawMarkers();
@@ -186,3 +186,4 @@ setInterval(() => {
 }, 5000);
 window.addEventListener('offline', () => toast('Kamu offline. Peta dan pencarian alamat butuh internet.'));
 window.addEventListener('online', () => toast('Kembali online.'));
+

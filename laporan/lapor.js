@@ -199,7 +199,7 @@ function track(){
   const st=stageOf(r);
   out.innerHTML=`<div class="text-dark"><b>${r.id}</b> · ${CATS[r.cat].icon} ${CATS[r.cat].label}<br><small>${esc(r.addr)}</small></div>
   <ul class="timeline">${STAGES.map((s,i)=>`<li class="${i<=st?'on':''}">${s}</li>`).join('')}</ul>
-  <div class="text-muted" style="font-size:.75rem">Status pada demo ini disimulasikan otomatis tiap beberapa detik.</div>`;
+  <div class="text-muted" style="font-size:.75rem">Demo: laporan baru otomatis diverifikasi, tahap berikutnya lewat Mode Petugas.</div>`;
 }
 $('#trackBtn').onclick=track;
 $('#trackInput').addEventListener('keydown',e=>{if(e.key==='Enter')track();});
