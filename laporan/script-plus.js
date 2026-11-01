@@ -117,7 +117,7 @@ renderList = function () {
     return `<div class="rep" role="button" tabindex="0" data-id="${r.id}">
       ${r.photo ? `<img src="${r.photo}" alt="">` : `<div class="ph">${CATS[r.cat].icon}</div>`}
       <div class="flex-fill" style="min-width:0"><div class="fw-bold">${CATS[r.cat].label}
-        <span class="badge-st st-${st}">${STAGES[st]}</span>${st < 3 ? ` <span class="badge-st pr-${pc}">${pl}</span>` : ''}</div>
+        <span class="badge-st st-${st}">${STAGES[st]}</span>${st < 3 ? ` <span class="badge-st pr-${pc}">${pl}</span>` : ''}<div class="mt-1">${slaBadge(r)}</div></div>
       <div class="small text-muted text-truncate">${esc(r.desc)}</div>
       <div class="small text-muted">${r.id} · ${ago(r.created)} · 👍 ${r.votes}</div></div></div>`;
   }).join('') : '<div class="empty">Kamu belum punya laporan. Mulai dengan memotret kerusakan di formulir.</div>';
@@ -136,24 +136,6 @@ popupHtml = function (r) {
     <button class="btn btn-sm btn-outline-aksa mt-1 w-100" onclick="upvote('${r.id}')">👍 Saya juga melihat ini (${r.votes})</button>`;
 };
 const osmLink = r => `https://www.openstreetmap.org/?mlat=${r.lat}&mlon=${r.lng}#map=18/${r.lat}/${r.lng}`;
-function renderDetail(id) {
-  const r = reports.find(x => x.id === id); if (!r) return;
-  const st = stageOf(r), p = prio(r), [pl, pc] = prioLevel(p), c = CATS[r.cat];
-  $('#detailBody').dataset.id = id;
-  $('#detailBody').innerHTML = `
-    <div class="d-flex justify-content-between align-items-start mb-2"><div><div class="h5 fw-bold mb-0">${c.icon} ${c.label}</div>
-      <small class="text-muted">${r.id} · ${ago(r.created)} · oleh ${r.anon ? 'Anonim' : esc(r.name || 'Warga')}</small></div>
-      <button class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button></div>
-    ${r.photo ? `<img class="detail-img" src="${r.photo}" alt="Foto kerusakan">` : ''}
-    <div class="d-flex flex-wrap gap-2 my-2"><span class="badge-st st-${st}">${STAGES[st]}</span><span class="badge-st sev-${r.sev}">${SEVL[r.sev]}</span>
-      ${st < 3 ? `<span class="badge-st pr-${pc}">Prioritas ${pl} (${p})</span>` : ''}</div>
-    <p class="mb-1">${esc(r.desc)}</p>
-    <p class="small text-muted"><i class="bi bi-geo-alt"></i> ${esc(r.addr || r.lat.toFixed(5) + ', ' + r.lng.toFixed(5))}</p>
-    <ul class="timeline">${STAGES.map((s, i) => `<li class="${i <= st ? 'on' : ''}">${s}</li>`).join('')}</ul>
-    <div class="d-flex gap-2"><button class="btn btn-aksa flex-fill" data-act="vote">👍 Dukung (${r.votes})</button>
-      <button class="btn btn-outline-aksa" data-act="share" aria-label="Bagikan"><i class="bi bi-share-fill"></i></button>
-      <button class="btn btn-outline-aksa" data-act="focus" aria-label="Lihat di peta"><i class="bi bi-map-fill"></i></button></div>`;
-}
 function openDetail(id) {
   renderDetail(id);
   map.closePopup();
@@ -182,8 +164,8 @@ function focusReport(id) {
 /* ---------- Ekspor CSV ---------- */
 $('#exportBtn').onclick = () => {
   const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const rows = [['kode', 'kategori', 'keparahan', 'status', 'prioritas', 'lat', 'lng', 'alamat', 'deskripsi', 'dukungan', 'dibuat']];
-  reports.forEach(r => rows.push([r.id, CATS[r.cat].label, SEVL[r.sev], STAGES[stageOf(r)], prio(r), r.lat, r.lng, r.addr, r.desc, r.votes, new Date(r.created).toISOString()]));
+  const rows = [['kode', 'kategori', 'keparahan', 'status', 'prioritas', 'lat', 'lng', 'alamat', 'deskripsi', 'dukungan', 'dibuat', 'instansi', 'tenggat', 'terlambat']];
+  reports.forEach(r => rows.push([r.id, CATS[r.cat].label, SEVL[r.sev], STAGES[stageOf(r)], prio(r), r.lat, r.lng, r.addr, r.desc, r.votes, new Date(r.created).toISOString(), AGENCY[r.cat], new Date(deadline(r)).toISOString(), slaState(r).late ? 'ya' : 'tidak']));
   const blob = new Blob(['\ufeff' + rows.map(r => r.map(q).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
   const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'laporan-aksa.csv' });
   a.click(); URL.revokeObjectURL(a.href);
@@ -204,5 +186,3 @@ setInterval(() => {
 }, 5000);
 window.addEventListener('offline', () => toast('Kamu offline. Peta dan pencarian alamat butuh internet.'));
 window.addEventListener('online', () => toast('Kembali online.'));
-
-renderAll();

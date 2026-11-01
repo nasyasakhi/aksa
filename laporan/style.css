@@ -97,3 +97,18 @@ body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:line
 [data-bs-theme=dark] .map:not(.sat) .leaflet-tile-pane,[data-bs-theme=dark] #map:not(.sat) .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.92) contrast(.9)}
 [data-bs-theme=dark] .modal-content{color:var(--ink)}
 [data-bs-theme=dark] .btn-close{filter:invert(1)}
+
+/* ===== v3: akuntabilitas ===== */
+.diff{height:100%;padding:1rem;border-radius:var(--radius);background:var(--cream-2);border:1px solid #f3e4d6}
+.diff p{margin:.3rem 0 0;font-size:.85rem;color:#7d7389}
+.route-box{background:var(--cream-2);border-left:4px solid var(--purple);border-radius:10px;padding:.6rem .8rem;font-size:.85rem;margin-bottom:.75rem}
+.points-chip{font-size:.8rem;font-weight:700;background:var(--sun);color:#5b4300;border-radius:999px;padding:.3rem .7rem;white-space:nowrap}
+.pin.late{background:#e53935}
+.vf-ok{background:#dcf5e6;color:#1c6b3d}.vf-wait{background:#fff0d6;color:#b87400}.vf-bad{background:#ffe0df;color:#c62828}
+.sla-ok{background:#e8e0ff;color:var(--purple)}.sla-late{background:#e53935;color:#fff}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.ba figure{margin:0}.ba img{width:100%;height:150px;object-fit:cover;border-radius:12px}.ba figcaption{font-size:.75rem;text-align:center;color:#8a7f95}
+.seal{font-family:ui-monospace,Menlo,monospace;font-size:.78rem;word-break:break-all}
+#agTable{--bs-table-bg:transparent}
+[data-bs-theme=dark] .diff{border-color:#2e2a45}
+[data-bs-theme=dark] .diff p{color:#b9b0c7}

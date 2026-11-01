@@ -5,10 +5,11 @@ const CATS = {
   drainase:{label:'Drainase/banjir',icon:'💧', kw:['banjir','got','selokan','drainase','air','tergenang','mampet']},
   sampah:  {label:'Sampah/lingkungan',icon:'🗑️', kw:['sampah','limbah','bau','tumpukan','polusi','asap']},
   jembatan:{label:'Jembatan',      icon:'🌉', kw:['jembatan','pagar','longsor','tiang jembatan']},
-  fasum:   {label:'Fasilitas umum',icon:'🏫', kw:['halte','taman','bangku','toilet','fasilitas','sekolah','rambu']}
+  fasum:   {label:'Fasilitas umum',icon:'🏫', kw:['halte','taman','bangku','toilet','fasilitas','sekolah','rambu']},
+  proyek:  {label:'Dugaan penyimpangan',icon:'🔎', kw:['proyek','mangkrak','korupsi','pungli','anggaran','material','kontraktor','dana']}
 };
 const STAGES = ['Dikirim','Diverifikasi','Dalam perbaikan','Selesai'];
-const KEY = 'aksa_reports_v1';
+const KEY = 'aksa_reports_v2';
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -20,9 +21,10 @@ const SEED = [
   [-6.2297,106.8003,'drainase',3,'Got tersumbat, air meluap setiap hujan.',2,2],
   [-6.1865,106.8341,'sampah',2,'Tumpukan sampah menutup separuh trotoar.',1,0],
   [-6.2441,106.8481,'fasum',1,'Halte bus rusak, atap bocor.',3,3],
-  [-6.1992,106.8223,'jembatan',3,'Pagar pembatas jembatan penyeberangan patah.',2,1]
+  [-6.1992,106.8223,'jembatan',3,'Pagar pembatas jembatan penyeberangan patah.',2,1],
+  [-6.2615,106.8106,'proyek',2,'Proyek trotoar mangkrak 3 bulan, material dibiarkan menutup jalur pejalan kaki.',4,1]
 ].map((r,i)=>({id:'AKSA-'+(1001+i),lat:r[0],lng:r[1],cat:r[2],sev:r[3],desc:r[4],votes:r[5],stage:r[6],
-  addr:'Jakarta',photo:null,created:now-(i+1)*30*H,seed:true}));
+  addr:'Jakarta',photo:null,created:now-[4,6,1,10,20,5,3][i]*24*H,seed:true}));
 
 let reports = JSON.parse(localStorage.getItem(KEY) || 'null') || SEED;
 const save = () => { try{localStorage.setItem(KEY, JSON.stringify(reports));}catch(e){toast('Penyimpanan penuh, foto tidak tersimpan.');} };
