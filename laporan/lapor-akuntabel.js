@@ -1,6 +1,8 @@
 /* Aksa v3: lapisan akuntabilitas (SLA, eskalasi, verifikasi warga, segel digital, poin). Dimuat terakhir. */
-const AGENCY = { jalan: 'Dinas Bina Marga', lampu: 'Dinas Bina Marga', jembatan: 'Dinas Bina Marga', drainase: 'Dinas Sumber Daya Air',
-  sampah: 'Dinas Lingkungan Hidup', fasum: 'Dinas Cipta Karya & Fasum', proyek: 'Inspektorat' };
+const AGENCY = {
+  jalan: 'Dinas Bina Marga', lampu: 'Dinas Bina Marga', jembatan: 'Dinas Bina Marga', drainase: 'Dinas Sumber Daya Air',
+  sampah: 'Dinas Lingkungan Hidup', fasum: 'Dinas Cipta Karya & Fasum', proyek: 'Inspektorat'
+};
 const SLA_D = { 1: 14, 2: 7, 3: 3 };
 const slaDays = r => r.cat === 'proyek' ? 14 : SLA_D[r.sev];
 const deadline = r => r.created + slaDays(r) * 864e5;
@@ -11,8 +13,10 @@ function slaState(r) {
   const left = deadline(r) - Date.now();
   return { done: false, late: left < 0, left };
 }
-const fmtDur = ms => { ms = Math.abs(ms); const d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5);
-  return d ? `${d} hr ${h} jam` : h ? `${h} jam` : `${Math.max(1, Math.floor(ms / 6e4))} mnt`; };
+const fmtDur = ms => {
+  ms = Math.abs(ms); const d = Math.floor(ms / 864e5), h = Math.floor(ms % 864e5 / 36e5);
+  return d ? `${d} hr ${h} jam` : h ? `${h} jam` : `${Math.max(1, Math.floor(ms / 6e4))} mnt`;
+};
 const overdueDays = r => { const s = slaState(r); return !s.done && s.late ? -s.left / 864e5 : 0; };
 const escalated = r => overdueDays(r) >= 2;
 reports.forEach(r => { if (r.id === 'AKSA-1005' && r.yes === undefined) { r.yes = 3; r.ratings = [5, 4, 4]; } });
@@ -27,7 +31,7 @@ function verifBadge(r) {
   const v = verifState(r); if (!v) return '';
   return v === 'verified' ? '<span class="badge-st vf-ok">✓ Terverifikasi warga</span>'
     : v === 'disputed' ? '<span class="badge-st vf-bad">Disengketakan warga</span>'
-    : '<span class="badge-st vf-wait">Menunggu konfirmasi warga</span>';
+      : '<span class="badge-st vf-wait">Menunggu konfirmasi warga</span>';
 }
 function slaBadge(r) {
   const s = slaState(r);
@@ -42,7 +46,7 @@ function confirmFix(id, answer, photo) {
   const w = getMine().includes(id) ? 2 : 1;
   if (answer === 'yes') r.yes = (r.yes || 0) + w; else r.no = (r.no || 0) + w;
   if (photo) r.after = photo;
-  try { const c = JSON.parse(localStorage.getItem('aksa_conf') || '[]'); c.push(id); localStorage.setItem('aksa_conf', JSON.stringify(c)); } catch (e) {}
+  try { const c = JSON.parse(localStorage.getItem('aksa_conf') || '[]'); c.push(id); localStorage.setItem('aksa_conf', JSON.stringify(c)); } catch (e) { }
   save(); addPoints(photo ? 15 : 10, photo ? 'bukti foto sesudah' : 'konfirmasi lapangan');
   drawMarkers(); renderList(); renderDetail(id);
 }
@@ -50,9 +54,11 @@ let afterFor = null;
 function compress(f, cb) {
   if (!f || !f.type.startsWith('image/')) return toast('File harus berupa gambar.');
   const img = new Image();
-  img.onload = () => { const s = Math.min(1, 640 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+  img.onload = () => {
+    const s = Math.min(1, 640 / Math.max(img.width, img.height)), c = document.createElement('canvas');
     c.width = img.width * s; c.height = img.height * s; c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-    cb(c.toDataURL('image/jpeg', .6)); URL.revokeObjectURL(img.src); };
+    cb(c.toDataURL('image/jpeg', .6)); URL.revokeObjectURL(img.src);
+  };
   img.src = URL.createObjectURL(f);
 }
 $('#afterInput').onchange = e => { compress(e.target.files[0], d => confirmFix(afterFor, 'yes', d)); e.target.value = ''; };
@@ -88,7 +94,7 @@ function renderPoints() {
   const p = getPts(); let lv = LEVELS[0]; LEVELS.forEach(l => { if (p >= l[0]) lv = l; });
   $('#pointsChip').innerHTML = `<i class="bi bi-shield-check"></i> ${lv[1]} · ${p} poin`;
 }
-function addPoints(n, why) { try { localStorage.setItem('aksa_pts', getPts() + n); } catch (e) {} renderPoints(); toast(`+${n} poin: ${why}`); }
+function addPoints(n, why) { try { localStorage.setItem('aksa_pts', getPts() + n); } catch (e) { } renderPoints(); toast(`+${n} poin: ${why}`); }
 const _up = upvote;
 upvote = function (id) { const r = reports.find(x => x.id === id), b = r ? r.votes : 0; _up(id); if (r && r.votes > b) addPoints(3, 'dukungan laporan'); };
 window.upvote = upvote;
@@ -116,8 +122,10 @@ $('#sevGroup').addEventListener('change', () => showRoute());
 
 /* ---------- Pin merah untuk yang terlambat ---------- */
 function recolor() {
-  reports.forEach(r => { const m = markers[r.id];
-    if (m && cluster.hasLayer(m)) m.setIcon(pinIcon(CATS[r.cat].icon, overdueDays(r) > 0 ? 'late' : stageOf(r) === 3 && verifState(r) !== 'disputed' ? 'done' : '')); });
+  reports.forEach(r => {
+    const m = markers[r.id];
+    if (m && cluster.hasLayer(m)) m.setIcon(pinIcon(CATS[r.cat].icon, overdueDays(r) > 0 ? 'late' : stageOf(r) === 3 && verifState(r) !== 'disputed' ? 'done' : ''));
+  });
 }
 const _dm2 = drawMarkers;
 drawMarkers = function () { _dm2(); recolor(); renderAccount(); renderChart(); };
@@ -134,10 +142,12 @@ function renderAccount() {
   const rows = Object.entries(ag).map(([a, o]) => ({ a, ...o, score: o.good + o.bad ? Math.round(o.good / (o.good + o.bad) * 100) : null }))
     .sort((x, y) => (y.score ?? -1) - (x.score ?? -1));
   $('#agTable').innerHTML = `<thead><tr><th>Instansi</th><th class="text-center">Laporan</th><th class="text-center">Selesai</th><th class="text-center">Terlambat</th><th class="text-center">Kepuasan</th><th style="min-width:150px">Skor akuntabilitas</th></tr></thead><tbody>` +
-    rows.map(o => { const col = o.score >= 70 ? '#2e9e5b' : o.score >= 40 ? '#f2b01e' : '#e53935';
+    rows.map(o => {
+      const col = o.score >= 70 ? '#2e9e5b' : o.score >= 40 ? '#f2b01e' : '#e53935';
       return `<tr><td class="fw-semibold">${o.a}</td><td class="text-center">${o.n}</td><td class="text-center">${o.done}</td><td class="text-center">${o.late}</td><td class="text-center">${o.rs.length ? (o.rs.reduce((a, b) => a + b, 0) / o.rs.length).toFixed(1) + '★' : '–'}</td><td>` +
         (o.score == null ? '<span class="text-muted small">Belum ada data</span>'
-          : `<div class="d-flex align-items-center gap-2"><div class="progress flex-fill" style="height:8px"><div class="progress-bar" style="width:${o.score}%;background:${col}"></div></div><b>${o.score}</b></div>`) + '</td></tr>'; }).join('') + '</tbody>';
+          : `<div class="d-flex align-items-center gap-2"><div class="progress flex-fill" style="height:8px"><div class="progress-bar" style="width:${o.score}%;background:${col}"></div></div><b>${o.score}</b></div>`) + '</td></tr>';
+    }).join('') + '</tbody>';
   const late = reports.filter(r => overdueDays(r) > 0).sort((a, b) => overdueDays(b) - overdueDays(a)).slice(0, 4);
   $('#lateList').innerHTML = late.length ? late.map(r => `<div class="rep" role="button" tabindex="0" data-id="${r.id}">
     <div class="ph">${CATS[r.cat].icon}</div><div class="flex-fill" style="min-width:0"><div class="fw-bold">${CATS[r.cat].label} <small class="text-muted fw-normal">· ${AGENCY[r.cat]}</small></div>
@@ -152,9 +162,13 @@ function renderChart() {
   if (!window.Chart) return;
   const keys = Object.keys(CATS), data = keys.map(k => reports.filter(r => r.cat === k).length), color = getComputedStyle(document.body).color;
   if (!catChart) {
-    catChart = new Chart($('#catChart'), { type: 'doughnut', data: { labels: keys.map(k => CATS[k].icon + ' ' + CATS[k].label),
-      datasets: [{ data, backgroundColor: ['#ff7a2f', '#f9df9a', '#7c4dff', '#2e9e5b', '#cdb8fb', '#ffb184', '#8a7f95'], borderWidth: 0 }] },
-      options: { maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { color, boxWidth: 12 } }, title: { display: true, text: 'Jenis laporan', color } } } });
+    catChart = new Chart($('#catChart'), {
+      type: 'doughnut', data: {
+        labels: keys.map(k => CATS[k].icon + ' ' + CATS[k].label),
+        datasets: [{ data, backgroundColor: ['#ff7a2f', '#f9df9a', '#7c4dff', '#2e9e5b', '#cdb8fb', '#ffb184', '#8a7f95'], borderWidth: 0 }]
+      },
+      options: { maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { color, boxWidth: 12 } }, title: { display: true, text: 'Jenis laporan', color } } }
+    });
   } else {
     catChart.data.datasets[0].data = data;
     catChart.options.plugins.legend.labels.color = color; catChart.options.plugins.title.color = color; catChart.update();

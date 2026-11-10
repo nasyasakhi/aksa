@@ -13,7 +13,7 @@ const prioLevel = s => s >= 50 ? ['Tinggi', 'hi'] : s >= 32 ? ['Sedang', 'md'] :
 /* ---------- Mode gelap ---------- */
 function applyTheme(t) {
   document.documentElement.setAttribute('data-bs-theme', t);
-  try { localStorage.setItem('aksa_theme', t); } catch (e) {}
+  try { localStorage.setItem('aksa_theme', t); } catch (e) { }
   $('#themeBtn').innerHTML = t === 'dark' ? '<i class="bi bi-sun-fill"></i>' : '<i class="bi bi-moon-stars-fill"></i>';
 }
 applyTheme((() => { try { return localStorage.getItem('aksa_theme'); } catch (e) { return null; } })() || 'light');
@@ -82,7 +82,7 @@ if (SR) {
 function syncAnon() { $('#reporter').disabled = $('#anon').checked; if ($('#anon').checked) $('#reporter').value = ''; }
 function saveDraft() {
   pending = { anon: $('#anon').checked, name: $('#reporter').value.trim() };
-  try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ d: $('#desc').value, l: $('#landmark').value, n: $('#reporter').value, a: $('#anon').checked })); } catch (e) {}
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ d: $('#desc').value, l: $('#landmark').value, n: $('#reporter').value, a: $('#anon').checked })); } catch (e) { }
 }
 $('#anon').addEventListener('change', () => { syncAnon(); saveDraft(); });
 $('#reportForm').addEventListener('input', saveDraft);
@@ -93,15 +93,15 @@ try {
     if (d.d) { $('#desc').value = d.d; $('#desc').dispatchEvent(new Event('input', { bubbles: true })); toast('Draf laporanmu dipulihkan.'); }
     pending = { anon: !!d.a, name: d.n || '' };
   }
-} catch (e) {}
+} catch (e) { }
 
 /* ---------- Setelah laporan terkirim ---------- */
 $('#doneModal').addEventListener('show.bs.modal', () => {
   const id = $('#ticketCode').textContent, r = reports.find(x => x.id === id);
   if (r) { r.anon = pending.anon; r.name = pending.anon ? '' : pending.name; save(); }
-  const m = getMine(); if (!m.includes(id)) { m.push(id); try { localStorage.setItem('aksa_mine', JSON.stringify(m)); } catch (e) {} }
+  const m = getMine(); if (!m.includes(id)) { m.push(id); try { localStorage.setItem('aksa_mine', JSON.stringify(m)); } catch (e) { } }
   lastStage[id] = 0; pending = { anon: false, name: '' };
-  try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) { }
   renderList();
 });
 
@@ -148,7 +148,7 @@ $('#detailBody').addEventListener('click', e => {
   if (b.dataset.act === 'vote') { upvote(id); renderDetail(id); }
   if (b.dataset.act === 'share') {
     const text = `Ada ${CATS[r.cat].label.toLowerCase()} yang perlu ditangani. Kode laporan Aksa: ${r.id}. Lokasi: ${osmLink(r)}`;
-    navigator.share ? navigator.share({ title: 'Laporan Aksa', text }).catch(() => {}) : window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
+    navigator.share ? navigator.share({ title: 'Laporan Aksa', text }).catch(() => { }) : window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank', 'noopener');
   }
   if (b.dataset.act === 'focus') { bootstrap.Modal.getInstance('#detailModal').hide(); focusReport(id); }
 });

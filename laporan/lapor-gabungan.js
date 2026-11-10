@@ -9,17 +9,21 @@ slaBadge = function (r) {
 };
 
 /* ---------- PIC (penanggung jawab, nama contoh) ---------- */
-const PICS = { 'Dinas Bina Marga': ['Budi Hartono', 'Rina Wulandari'], 'Dinas Sumber Daya Air': ['Agus Salim', 'Dewi Lestari'],
-  'Dinas Lingkungan Hidup': ['Siti Aminah', 'Yoga Pratama'], 'Dinas Cipta Karya & Fasum': ['Hendra Gunawan', 'Maya Sari'], 'Inspektorat': ['Rudi Santoso', 'Lina Marlina'] };
+const PICS = {
+  'Dinas Bina Marga': ['Budi Hartono', 'Rina Wulandari'], 'Dinas Sumber Daya Air': ['Agus Salim', 'Dewi Lestari'],
+  'Dinas Lingkungan Hidup': ['Siti Aminah', 'Yoga Pratama'], 'Dinas Cipta Karya & Fasum': ['Hendra Gunawan', 'Maya Sari'], 'Inspektorat': ['Rudi Santoso', 'Lina Marlina']
+};
 const pickPic = r => { const l = PICS[AGENCY[r.cat]]; return l[r.id.charCodeAt(r.id.length - 1) % l.length]; };
 
 /* ---------- Pemeriksaan foto: umur file + kemiripan (average hash) ---------- */
 function aHashFrom(src) {
   return new Promise(res => {
     const i = new Image();
-    i.onload = () => { const c = document.createElement('canvas'); c.width = c.height = 8; const x = c.getContext('2d'); x.drawImage(i, 0, 0, 8, 8);
+    i.onload = () => {
+      const c = document.createElement('canvas'); c.width = c.height = 8; const x = c.getContext('2d'); x.drawImage(i, 0, 0, 8, 8);
       const d = x.getImageData(0, 0, 8, 8).data, g = []; for (let k = 0; k < 64; k++) g.push(d[k * 4] * .3 + d[k * 4 + 1] * .59 + d[k * 4 + 2] * .11);
-      const m = g.reduce((a, b) => a + b, 0) / 64; res(g.map(v => v > m ? '1' : '0').join('')); };
+      const m = g.reduce((a, b) => a + b, 0) / 64; res(g.map(v => v > m ? '1' : '0').join(''));
+    };
     i.onerror = () => res(null); i.src = src;
   });
 }
@@ -47,7 +51,7 @@ $('#doneModal').addEventListener('show.bs.modal', () => {
 /* ---------- Notifikasi browser ---------- */
 function notify(msg) {
   toast(msg);
-  if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('Aksa', { body: msg }); } catch (e) {} }
+  if ('Notification' in window && Notification.permission === 'granted') { try { new Notification('Aksa', { body: msg }); } catch (e) { } }
 }
 function updateBell() { $('#bellBtn').innerHTML = ('Notification' in window && Notification.permission === 'granted') ? '<i class="bi bi-bell-fill"></i>' : '<i class="bi bi-bell"></i>'; }
 $('#bellBtn').onclick = async () => {
@@ -59,10 +63,10 @@ updateBell();
 
 /* ---------- Ukuran teks (aksesibilitas) ---------- */
 const SIZES = [100, 112, 125]; let sz = 0;
-try { sz = (+localStorage.getItem('aksa_sz') || 0) % SIZES.length; } catch (e) {}
+try { sz = (+localStorage.getItem('aksa_sz') || 0) % SIZES.length; } catch (e) { }
 const applySize = () => { document.documentElement.style.fontSize = SIZES[sz] + '%'; };
 applySize();
-$('#a11yBtn').onclick = () => { sz = (sz + 1) % SIZES.length; try { localStorage.setItem('aksa_sz', sz); } catch (e) {} applySize(); toast(`Ukuran teks ${SIZES[sz]}%`); };
+$('#a11yBtn').onclick = () => { sz = (sz + 1) % SIZES.length; try { localStorage.setItem('aksa_sz', sz); } catch (e) { } applySize(); toast(`Ukuran teks ${SIZES[sz]}%`); };
 
 /* ---------- Filter peta: status + waktu ---------- */
 function passFilter(r) {
@@ -87,16 +91,16 @@ renderStats = function () {
   const done = reports.filter(r => slaState(r).done), good = done.filter(r => !slaState(r).late && verifState(r) !== 'disputed').length;
   const rs = reports.flatMap(r => r.ratings || []);
   const items = [[reports.length, 'Laporan diterima'], [done.length ? Math.round(good / done.length * 100) + '%' : '–', 'Selesai tepat waktu'],
-    [new Set(Object.values(AGENCY)).size, 'Instansi terdaftar'], [rs.length ? (rs.reduce((a, b) => a + b, 0) / rs.length).toFixed(1) + '★' : '–', 'Kepuasan warga']];
+  [new Set(Object.values(AGENCY)).size, 'Instansi terdaftar'], [rs.length ? (rs.reduce((a, b) => a + b, 0) / rs.length).toFixed(1) + '★' : '–', 'Kepuasan warga']];
   $('#stats').innerHTML = items.map(i => `<div class="col-6 col-md-3"><div class="stat"><b>${i[0]}</b>${i[1]}</div></div>`).join('');
 };
 
 /* ---------- Mode petugas (demo CRM) ---------- */
 let officerMode = false, fuFor = null;
-try { officerMode = localStorage.getItem('aksa_ofc') === '1'; } catch (e) {}
+try { officerMode = localStorage.getItem('aksa_ofc') === '1'; } catch (e) { }
 $('#ofcBtn').classList.toggle('active', officerMode);
 $('#ofcBtn').onclick = () => {
-  officerMode = !officerMode; try { localStorage.setItem('aksa_ofc', officerMode ? '1' : '0'); } catch (e) {}
+  officerMode = !officerMode; try { localStorage.setItem('aksa_ofc', officerMode ? '1' : '0'); } catch (e) { }
   $('#ofcBtn').classList.toggle('active', officerMode);
   const id = $('#detailBody').dataset.id; if (id && $('#detailModal').classList.contains('show')) renderDetail(id);
   toast(officerMode ? 'Mode petugas (demo) aktif. Buka detail laporan untuk memproses.' : 'Mode petugas dimatikan.');
@@ -166,7 +170,7 @@ $('#detailBody').addEventListener('click', e => {
   if (a === 'rate') {
     if (ratedDone(id)) return toast('Kamu sudah memberi penilaian.');
     (r.ratings = r.ratings || []).push(+b.dataset.v);
-    try { const l = JSON.parse(localStorage.getItem('aksa_rated') || '[]'); l.push(id); localStorage.setItem('aksa_rated', JSON.stringify(l)); } catch (e) {}
+    try { const l = JSON.parse(localStorage.getItem('aksa_rated') || '[]'); l.push(id); localStorage.setItem('aksa_rated', JSON.stringify(l)); } catch (e) { }
     save(); addPoints(5, 'penilaian tindak lanjut'); renderAll(); renderDetail(id);
   }
 });
