@@ -6,7 +6,7 @@
     { username: 'user',  password: 'password', role: 'user'  }
   ];
   const KEY = 'aksa_auth';
-  const HOME = { admin: 'admin.html', user: 'user.html' };
+  const HOME = { admin: '/laporan/lapor-petugas.html', user: '/laporan/lapor-user.html' };
 
   function getAuth() {
     try { return JSON.parse(sessionStorage.getItem(KEY)); } catch (e) { return null; }

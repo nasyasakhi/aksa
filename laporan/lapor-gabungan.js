@@ -143,7 +143,7 @@ function renderDetail(id) {
     ${escalated(r) ? '<div class="alert alert-danger small py-2">Lewat tenggat lebih dari 2 hari. Laporan ini dieskalasi ke Inspektorat dan Ombudsman.</div>' : ''}
     <p class="mb-1">${esc(r.desc)}</p>
     <p class="small text-muted"><i class="bi bi-geo-alt"></i> ${esc(r.addr || r.lat.toFixed(5) + ', ' + r.lng.toFixed(5))}</p>
-    ${officerMode && st < 3 ? `<div class="ofc-box"><b>Panel petugas (demo)</b><div class="small text-muted mb-2">${AGENCY[r.cat]}. Menandai selesai wajib disertai foto tindak lanjut; foto dicek kemiripannya dan di-hash.</div>
+    ${officerMode && st < 3 ? `<div class="ofc-box"><b>Panel petugas </b><div class="small text-muted mb-2">${AGENCY[r.cat]}. Menandai selesai wajib disertai foto tindak lanjut; foto dicek kemiripannya dan di-hash.</div>
       <div class="d-flex gap-2 flex-wrap">${st >= 1 ? '<button class="btn btn-sm btn-outline-aksa" data-act="ofc-fu">📷 Foto tindak lanjut</button>' : ''}<button class="btn btn-sm btn-aksa" data-act="ofc-next">${NEXT[st]}</button></div></div>` : ''}
     ${st === 3 ? `<div class="route-box"><b>Instansi menandai ini selesai. Benarkah?</b><br>${r.yes || 0} suara setuju, ${r.no || 0} menolak. Perlu 2 suara agar sah.
       <div class="d-flex gap-2 mt-2 flex-wrap">${confDone(id) ? '<span class="small text-muted">Kamu sudah memberi konfirmasi.</span>'
