@@ -1,0 +1,59 @@
+  :root {
+    --aksa: #FF7B31;
+    --aksa-dark: #E8651A;
+    --peach: #FAEBDD;
+    --peach-soft: #FFF1E8;
+    --ungu: #C9B3FF;
+    --ink: #1B1A2E;
+    --bs-primary: #FF7B31;
+    --bs-primary-rgb: 255, 123, 49;
+    --bs-body-font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+  body { font-family: var(--bs-body-font-family); color: var(--ink); background: #fff; }
+  .btn-aksa { background: var(--aksa); border-color: var(--aksa); color: #fff; font-weight: 600; border-radius: 12px; padding: .8rem 1.25rem; }
+  .btn-aksa:hover, .btn-aksa:focus { background: var(--aksa-dark); border-color: var(--aksa-dark); color: #fff; }
+  .btn-outline-aksa { border: 1.5px solid var(--aksa); color: var(--aksa); font-weight: 600; border-radius: 12px; }
+  .btn-outline-aksa:hover { background: var(--aksa); color: #fff; }
+  .text-aksa { color: var(--aksa) !important; }
+  .form-control, .input-group-text { border-radius: 12px; padding: .8rem 1rem; border-color: #E9DDD2; }
+  .input-group-text { background: var(--peach-soft); color: var(--aksa); }
+  .input-group > .form-control:not(:first-child) { border-left: 0; }
+  .input-group > .input-group-text:first-child { border-right: 0; border-radius: 12px 0 0 12px; }
+  .input-group > .form-control:not(:last-child) { border-radius: 0; }
+  .input-group > .btn-eye { border: 1px solid #E9DDD2; border-left: 0; border-radius: 0 12px 12px 0; background: #fff; color: #8a8597; }
+  .form-control:focus { border-color: var(--aksa); box-shadow: 0 0 0 .25rem rgba(255,123,49,.18); }
+  .input-group:focus-within .input-group-text, .input-group:focus-within .btn-eye { border-color: var(--aksa); }
+  .btn:focus-visible, a:focus-visible { outline: 3px solid rgba(255,123,49,.45); outline-offset: 2px; }
+
+  /* Panel kiri */
+  .hero-side { background: linear-gradient(180deg, var(--peach) 0%, #FFF6EE 100%); position: relative; overflow: hidden; min-height: 100vh; }
+  .hero-side h1 { font-weight: 800; letter-spacing: -.02em; line-height: 1.1; font-size: clamp(2rem, 3.4vw, 3rem); }
+  .blob { position: absolute; width: 420px; height: 420px; right: -90px; bottom: -80px; background: var(--ungu); border-radius: 58% 42% 55% 45% / 50% 55% 45% 50%; opacity: .55; }
+  .arch { position: relative; width: 230px; height: 290px; border-radius: 115px 115px 18px 18px; background: linear-gradient(180deg, #FBE29B 0 58%, #F6D77C 58% 100%); overflow: hidden; margin: 0 auto; box-shadow: 0 20px 40px rgba(27,26,46,.12); }
+  .arch .sun { position: absolute; width: 74px; height: 74px; border-radius: 50%; background: var(--aksa); left: 50%; top: 58px; transform: translateX(-50%); }
+  .arch .road { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: 0; height: 0; border-left: 90px solid transparent; border-right: 90px solid transparent; border-bottom: 130px solid var(--ink); }
+  .arch .pin { position: absolute; width: 56px; top: 14px; right: 18px; }
+  .chip { position: absolute; display: inline-flex; align-items: center; gap: .5rem; background: #fff; border-radius: 999px; padding: .5rem .9rem; font-size: .78rem; font-weight: 600; box-shadow: 0 10px 24px rgba(27,26,46,.12); white-space: nowrap; }
+  .chip i { color: var(--aksa); }
+  .chip.c1 { left: -70px; bottom: 56px; }
+  .chip.c2 { right: -80px; top: 90px; }
+  .chip.c2 i { color: #1B1A2E; }
+
+  /* Kartu login */
+  .login-wrap { max-width: 420px; width: 100%; }
+  .demo-box { background: var(--peach-soft); border-radius: 14px; font-size: .85rem; }
+  .demo-box code { background: #fff; color: var(--aksa-dark); border-radius: 6px; padding: .1rem .4rem; }
+  .demo-fill { cursor: pointer; border: 0; background: transparent; padding: 0; text-align: left; width: 100%; }
+  .demo-fill:hover code { background: var(--aksa); color: #fff; }
+
+  /* Dashboard */
+  .app-nav { background: #fff; border-bottom: 1px solid #F0E4D8; }
+  .app-bg { background: var(--peach-soft); min-height: 100vh; }
+  .stat { background: #fff; border-radius: 18px; padding: 1.25rem; height: 100%; }
+  .stat .num { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; }
+  .card-aksa { background: #fff; border: 0; border-radius: 18px; }
+  .badge-soft { background: var(--peach); color: var(--aksa-dark); font-weight: 600; }
+  .cta-band { background: var(--aksa); color: #fff; border-radius: 22px; }
+  @media (prefers-reduced-motion: no-preference) { .chip { animation: float 4s ease-in-out infinite; } .chip.c2 { animation-delay: -2s; } }
+  @keyframes float { 50% { transform: translateY(-6px); } }
+  [hidden] { display: none !important; }
