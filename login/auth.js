@@ -21,15 +21,15 @@
 
   function logout() {
     try { sessionStorage.removeItem(KEY); } catch (e) {}
-    location.replace('login.html');
+    location.replace('/login/login.html');
   }
 
-  function goHome(role) { location.replace(HOME[role] || 'login.html'); }
+  function goHome(role) { location.replace(HOME[role] || '/login/login.html'); }
 
   // Taruh di <head> halaman yang butuh login. role = 'admin' atau 'user'
   function guard(role) {
     const auth = getAuth();
-    if (!auth) { location.replace('login.html'); return; }
+    if (!auth) { location.replace('/login/login.html'); return; }
     if (auth.role !== role) { goHome(auth.role); return; } // salah role -> balik ke halamannya sendiri
   }
 
@@ -44,6 +44,11 @@
     const auth = getAuth();
     document.querySelectorAll('.who').forEach((el) => { el.textContent = auth ? auth.username : ''; });
     document.querySelectorAll('.btnLogout').forEach((b) => b.addEventListener('click', logout));
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPage);
+  } else {
+    initPage();
   }
 
   window.Aksa = { login, logout, goHome, guard, guestOnly, initPage, getAuth };
